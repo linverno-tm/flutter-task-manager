@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:my_tp_2/service/auth_service/auth_service.dart' show AuthService;
 
-import 'widget/auth_widgets._all.dart';
+import 'widget/auth_widgets.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
