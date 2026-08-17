@@ -14,12 +14,12 @@ class ProgressChart extends StatelessWidget {
     if (period == 0) {
       // Bugun - soatlar bo'yicha
       for (int i = 0; i < 24; i += 4) {
-        data['${i}:00'] = 0;
+        data['$i:00'] = 0;
       }
       for (var task in tasks) {
         if (task.isCompleted) {
           final hour = (task.createdAt.hour ~/ 4) * 4;
-          final key = '${hour}:00';
+          final key = '$hour:00';
           data[key] = (data[key] ?? 0) + 1;
         }
       }
