@@ -1,3 +1,177 @@
+<h1 align="center">Task Manager</h1>
+
+<p align="center">
+  Offline-first task manager with a native iOS feel — <b>Flutter</b> · <b>Firebase</b> · <b>SQLite</b>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white" />
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black" />
+  <img src="https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white" />
+  <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS-0468D7?style=flat-square" />
+  <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/linverno-tm/flutter-task-manager/actions/workflows/flutter_ci.yml">
+    <img src="https://github.com/linverno-tm/flutter-task-manager/actions/workflows/flutter_ci.yml/badge.svg" alt="CI" />
+  </a>
+</p>
+
+---
+
+## Overview
+
+A task manager that keeps working when the network does not. Every write lands
+in a local SQLite database first and is mirrored to Cloud Firestore when a
+connection is actually available — not merely when the OS claims one is.
+
+**Highlights**
+
+- Offline-first writes: create, edit and complete tasks with no connection,
+  then let the sync service reconcile them
+- Google Sign-In through Firebase Auth, with per-user Firestore scoping
+- Scheduled local notifications for deadlines, cancelled automatically when a
+  task is completed or deleted
+- Calendar and statistics views built from the same task stream
+- 100% Cupertino widgets — no Material chrome leaking into an iOS-styled app
+
+## Offline sync
+
+The part worth reading the code for.
+
+```
+       write
+         │
+         ▼
+   ┌───────────┐   isSynced = false
+   │  SQLite   │◄──────────────────────┐
+   └─────┬─────┘                       │
+         │ reachable?                  │
+         ▼                             │
+   ┌───────────┐   yes   ┌──────────┐  │  no
+   │ reachable │────────►│ Firestore│  │
+   │   check   │         └──────────┘  │
+   └─────┬─────┘                       │
+         └───────────────────────────► │
+                                    pending queue
+```
+
+Two details make this reliable:
+
+**Connectivity is verified, not assumed.** `connectivity_plus` reports that an
+interface exists — a captive-portal Wi-Fi or a hotspot with no upstream both
+look "connected". `SyncService.hasInternetConnection()` therefore resolves
+`firestore.googleapis.com` with a timeout before deciding the network is usable.
+
+**Sync is an upsert, not an update.** A task created offline is stored under a
+client-generated id, so the Firestore document does not exist yet. A plain
+`update` throws `not-found` and the task would silently never reach the cloud;
+`set(..., SetOptions(merge: true))` creates it instead.
+
+## Project structure
+
+```
+lib/
+├── main.dart
+├── firebase_options.dart
+│
+├── models/
+│   └── task_model.dart              # SQLite + Firestore mapping, copyWith
+│
+├── service/
+│   ├── auth_service/
+│   │   └── auth_service.dart        # Firebase Auth + Google Sign-In
+│   ├── data/
+│   │   ├── database_service.dart    # SQLite schema and queries
+│   │   ├── firestore_service.dart   # per-user Firestore collection
+│   │   └── sync_service.dart        # reachability + pending queue
+│   ├── local_notif_service/
+│   │   ├── local_notification_service.dart
+│   │   └── permission_service.dart
+│   └── task_service/
+│       └── task_service.dart        # the API the UI talks to
+│
+└── screens/
+    ├── auth/                        # sign-in
+    ├── main/                        # bottom navigation shell
+    ├── home/                        # task list, add/edit, drawer
+    ├── calendar/                    # month view + tasks for a day
+    ├── statistics/                  # progress chart, productivity meter
+    └── profile/                     # settings
+```
+
+`TaskService` is the only thing the screens talk to; which of SQLite, Firestore
+or the sync queue answers a call is an implementation detail behind it.
+
+## Getting started
+
+```bash
+git clone https://github.com/linverno-tm/flutter-task-manager.git
+cd flutter-task-manager
+flutter pub get
+```
+
+### Firebase
+
+The repository ships without credentials, so you need your own project:
+
+1. Create a project at [console.firebase.google.com](https://console.firebase.google.com)
+2. Add an Android app with package name `com.example.my_tp_2` and drop
+   `google-services.json` into `android/app/`
+3. Enable **Authentication → Sign-in method → Google**
+4. Create a **Cloud Firestore** database and apply these rules:
+
+   ```javascript
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /users/{userId}/tasks/{taskId} {
+         allow read, write: if request.auth != null
+                            && request.auth.uid == userId;
+       }
+     }
+   }
+   ```
+
+5. Regenerate `lib/firebase_options.dart` with `flutterfire configure`
+
+Then:
+
+```bash
+flutter run
+```
+
+## Tests
+
+```bash
+flutter analyze
+flutter test
+```
+
+The suite covers the `Task` model where correctness actually bites — the two
+serialisation formats it has to satisfy at once:
+
+- **SQLite mapping** — booleans stored as integers, dates as ISO-8601, and a
+  `toMap → fromMap` round trip that preserves every field
+- **Firestore mapping** — local-only fields omitted, booleans kept as booleans,
+  dates converted to `Timestamp`, null deadlines written as null
+- **defaults** — a task built without a category or priority gets sane ones
+- **copyWith** — including the documented fact that it cannot *clear* a
+  deadline, since `null` falls through to the current value
+
+CI runs analyze, the suite and a debug APK build on every push.
+
+## Roadmap
+
+- [ ] Full-text search across tasks
+- [ ] Recurring tasks
+- [ ] Tags in addition to categories
+- [ ] Export / import
+
+## License
+
+MIT — see [LICENSE](LICENSE).
 # 📝 Flutter Todo App
 
 <div align="center">
