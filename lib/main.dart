@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:my_tp_2/service/auth_service/auth_service.dart'
     show AuthService;
-import 'package:my_tp_2/service/firestore_service.dart/sync_service.dart'
+import 'package:my_tp_2/service/data/sync_service.dart'
     show SyncService;
 import 'package:my_tp_2/service/local_notif_service/permission_service.dart'
     show PermissionService;
