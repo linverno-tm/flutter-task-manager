@@ -43,7 +43,7 @@ class Task {
       title: title ?? this.title,
       description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
-      deadLine: deadline ?? this.deadLine,
+            deadLine: deadline ?? deadLine,
       isCompleted: isCompleted ?? this.isCompleted,
       category: category ?? this.category,
       priority: priority ?? this.priority,
