@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
+
 import '../../models/task_model.dart';
-import '../firestore_service.dart/database_service.dart';
-import '../firestore_service.dart/firestore_service.dart';
-import '../firestore_service.dart/sync_service.dart';
+import '../data/database_service.dart';
+import '../data/firestore_service.dart';
+import '../data/sync_service.dart';
 import '../local_notif_service/local_notification_service.dart';
 
 class TaskService {
@@ -44,7 +46,7 @@ class TaskService {
 
       return taskId;
     } catch (e) {
-      print('Add task error: $e');
+      debugPrint('Add task error: $e');
       return null;
     }
   }
@@ -79,7 +81,7 @@ class TaskService {
 
       return true;
     } catch (e) {
-      print('Update task error: $e');
+      debugPrint('Update task error: $e');
       return false;
     }
   }
@@ -98,7 +100,7 @@ class TaskService {
 
       return true;
     } catch (e) {
-      print('Delete task error: $e');
+      debugPrint('Delete task error: $e');
       return false;
     }
   }
@@ -138,7 +140,7 @@ class TaskService {
         return await _database.getAllTasks(userId);
       }
     } catch (e) {
-      print('Get all tasks error: $e');
+      debugPrint('Get all tasks error: $e');
       return await _database.getAllTasks(userId);
     }
   }
@@ -154,7 +156,7 @@ class TaskService {
         return await _database.getTodayTasks(userId);
       }
     } catch (e) {
-      print('Get today tasks error: $e');
+      debugPrint('Get today tasks error: $e');
       return await _database.getTodayTasks(userId);
     }
   }
@@ -170,7 +172,7 @@ class TaskService {
         return await _database.getCompletedTasksCount(userId);
       }
     } catch (e) {
-      print('Get completed tasks count error: $e');
+      debugPrint('Get completed tasks count error: $e');
       return await _database.getCompletedTasksCount(userId);
     }
   }
@@ -196,7 +198,7 @@ class TaskService {
       await _database.clearAllTasks(userId);
       await _notification.cancelAllNotifications();
     } catch (e) {
-      print('Clear all tasks error: $e');
+      debugPrint('Clear all tasks error: $e');
     }
   }
 
