@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tp_2/service/auth_service/auth_service.dart';
-import 'package:my_tp_2/service/firestore_service.dart/sync_service.dart';
+import 'package:my_tp_2/service/data/sync_service.dart';
 import 'package:my_tp_2/service/task_service/task_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets/settings_tile.dart';
